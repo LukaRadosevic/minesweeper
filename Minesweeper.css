@@ -1,0 +1,201 @@
+@import url(https://allfont.net/allfont.css?fonts=star-jedi);
+
+body{
+	background-image: url('home_background.jpg');
+	background-repeat: no-repeat;
+  	background-attachment: fixed;
+  	background-size: cover;
+  	font-family: 'Star Jedi', arial;
+}
+
+#title_text{
+	margin: auto;
+	font-size: 5vw;
+	color: black;
+	text-shadow:
+    -2px -2px 0 #ffc61a,
+    2px -2px 0 #ffc61a,
+    -2px 2px 0 #ffc61a,
+    2px 2px 0 #ffc61a,  
+    -4px 0 0 #ffc61a,
+    4px 0 0 #ffc61a,
+    0 4px 0 #ffc61a,
+    0 -4px 0 #ffc61a;
+    padding: 2vw;
+}
+
+#title_text_border{
+	text-align: center;
+	margin: auto;
+	margin-top: 6%;
+	border-radius: 0.4vw;
+	outline: groove;
+	outline-width: 0.8vw;
+	outline-color: #ffc61a;
+	width: 45%;
+}
+
+#play_button_border{
+	text-align: center;
+	margin-top: 11%;
+}
+
+#play_button{
+	background-color: transparent;
+	font-size: 4.5vw;
+	color: #ffc61a;
+	border: none;
+	transition: 1s;
+}
+
+#play_button:hover{
+	background-color: #ffffb3;
+	opacity: 80%;
+	font-size: 5vw;
+	color: #ffc61a;
+	border: none;
+	outline: solid;
+	outline-color: #ffc61a;
+	outline: groove;
+	outline-width: 0.4vw;
+	border-radius: 0.4vw;
+	padding: 1vw;
+}
+
+.border_element:hover{
+	background-color: #ffffb3;
+	opacity: 80%;
+}
+
+#instruction_button_border{
+	text-align: center;
+	margin-top: 3%;
+}
+
+.border_element{
+	background-color: transparent;
+	font-size: 2.5vw;
+	color: #ffc61a;
+	border: none;
+	outline: solid;
+	outline-color: #ffc61a;
+	outline: groove;
+	outline-width: 0.4vw;
+	border-radius: 0.4vw;
+	padding: 1vw;
+}
+
+#credits{
+	margin-top: 3%;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	color: #ffc61a;
+	font-size: 1vw;
+}
+
+#instruction_video{
+  	position: relative;
+  	width: 100%;
+}
+
+#my_video{
+  	position: fixed;
+  	width: 100%;
+  	object-fit: cover;
+}
+
+#video_content {
+  	position: absolute;
+}
+
+#button_grid{
+	border: solid;
+	border-color: lightblue;
+	width: 35.5vw;
+	height: 35.5vw;
+	margin: auto;
+	text-align: center;
+	padding: 0.2vw;
+	box-shadow: 0px 0px 10px 10px #66e0ff;
+}
+
+.button_in_grid{
+	border: none;
+	width: 3.25vw;
+	height: 3.25vw;
+	float: left;
+	margin: 0.15vw;
+}
+
+.yellow1{
+	background-color: #ffc61a;
+}
+
+.yellow2{
+	background-color: #ffffb3;
+}
+
+.yellow1:hover{
+	background-color: #ffffb3;
+	opacity: 80%;
+}
+
+.yellow2:hover{
+	background-color: #ffc61a;
+	opacity: 80%;
+}
+
+#game_info{
+	width: 40%;
+	margin: auto;
+	margin-bottom: 1vw;
+	padding-bottom: 1%;
+	text-align: center;
+}
+
+#bb8{
+	height: 6vw;
+}
+
+#flag_counter{
+	margin-left: 4%;
+	font-size: 6vw;
+	color: #ffc61a;
+	outline: solid;
+	outline-color: #ffc61a;
+	display: inline-block;
+	outline: groove;
+	outline-width: 0.4vw;
+	border-radius: 0.4vw;
+}
+
+#timer{
+	font-size: 6vw;
+	color: #ffc61a;
+	outline: solid;
+	outline-color: #ffc61a;
+	outline: groove;
+	outline-width: 0.4vw;
+	border-radius: 0.4vw;
+	float: left;
+	margin-left: 5%;
+	margin-top: 1%;
+}
+
+#quit_button{
+	margin: 1%;
+	float: right;
+}
+
+#restart_button{
+	margin: 1%;
+	float: left;
+}
+
+#game_body{
+	background-image: url('game_background.png');
+	background-repeat: no-repeat;
+  	background-attachment: fixed;
+  	background-size: cover;
+}
