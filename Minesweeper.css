@@ -1,11 +1,9 @@
-@import url(https://allfont.net/allfont.css?fonts=star-jedi);
-
 body{
 	background-image: url('home_background.jpg');
 	background-repeat: no-repeat;
   	background-attachment: fixed;
   	background-size: cover;
-  	font-family: 'Star Jedi', arial;
+  	font-family: arial;
 }
 
 #title_text{
@@ -112,8 +110,6 @@ body{
 #button_grid{
 	border: solid;
 	border-color: lightblue;
-	width: 35.5vw;
-	height: 35.5vw;
 	margin: auto;
 	text-align: center;
 	padding: 0.2vw;
@@ -125,7 +121,19 @@ body{
 	width: 3.25vw;
 	height: 3.25vw;
 	float: left;
-	margin: 0.15vw;
+	margin: 0.05vw;
+	font-size: 2.75vw;
+	margin: auto;
+	color: black;
+	text-shadow:
+    -2px -2px 0 #ffc61a,
+    2px -2px 0 #ffc61a,
+    -2px 2px 0 #ffc61a,
+    2px 2px 0 #ffc61a,  
+    -4px 0 0 #ffc61a,
+    4px 0 0 #ffc61a,
+    0 4px 0 #ffc61a,
+    0 -4px 0 #ffc61a;
 }
 
 .yellow1{

@@ -1,122 +1,513 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<link href="https://allfont.net/allfont.css?fonts=star-jedi" rel="stylesheet" type="text/css">
 		<link rel="stylesheet" href="Minesweeper.css">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script type="text/javascript">
+			let timerSecCtr = -1;
+			let timerMinCtr = 10;
+			let rows = 10;
+			let cols = 10;
+			let bombs = 15;
+			let flagCtr = bombs;
+
+			function timer(){
+				timerSecId = setInterval(decreaseTimerSec, 1000);
+				createButtons();
+				setMines(bombs);
+				document.getElementById("button_grid").addEventListener("contextmenu", (event) => {
+  					event.preventDefault();
+  				});
+  				let flag_counter = document.getElementById("flag_counter");
+  				flag_counter.innerHTML = flagCtr;
+  				let timer = document.getElementById("timer");
+
+  				timer.innerHTML = timerMinCtr + ":" + (timerSecCtr+1) + "0";
+			}
+
+			function decreaseTimerSec(){
+				let timer = document.getElementById("timer");
+
+				if(timerSecCtr == 0 && timerMinCtr == 0){
+					gameOver();
+				}
+
+				if(timerSecCtr == -1){
+					timerSecCtr = 60;
+					if(timerMinCtr != 0){
+						decreaseTimerMin();
+					}
+					else{
+						clearInterval(timerSecId);
+						gameOver();
+					}
+				}
+				if(timerSecCtr < 10){
+					timer.innerHTML = '0' + timerMinCtr + ':' + '0' + timerSecCtr;
+				}
+				else{
+					timer.innerHTML = '0' + timerMinCtr + ':' + timerSecCtr;
+				}
+				timerSecCtr--;
+			}
+
+			function decreaseTimerMin(){
+				let timer = document.getElementById("timer");
+
+				timerMinCtr--;
+				decreaseTimerSec();
+			}
+
+			function createButtons(){
+				let grid = document.getElementById("button_grid");
+
+				for(let i = 0; i < rows; i++){
+					let newRow = document.createElement("tr");
+					for(let j = 0; j < cols; j++){
+						let newCell = document.createElement("td");
+						newCell.classList.add("button_in_grid");
+						newCell.setAttribute("onclick", "openCell(event)");
+						newCell.id = (i*10) + j;
+
+						if((j+i) % 2 == 0){
+							newCell.classList.add("yellow1");
+						}
+						else{
+							newCell.classList.add("yellow2");
+						}
+						newCell.addEventListener("contextmenu", (event) => {
+  							placeFlag(event);
+  						});
+						newRow.appendChild(newCell);
+					}
+					grid.appendChild(newRow);
+				}
+			}
+
+			function placeFlag(event){
+				let id = event.target.id;
+				let cell = document.getElementById(id);
+
+				if(flagCtr == 0){
+					return;
+				}
+
+				if(!cell.hasAttribute("flagActive") && cell.style.backgroundColor != "lightblue"){
+					cell.style.backgroundRepeat = "no-repeat";
+					cell.style.backgroundSize = "cover";
+					cell.style.backgroundImage = "url('bb8.png')";
+
+					cell.setAttribute("flagActive", "true");
+					cell.removeAttribute("onclick");
+
+					flagCtr--;
+				}
+				else{
+					cell.style.backgroundImage = "none";
+					cell.setAttribute("onclick", "openCell(event)");
+					cell.removeAttribute("flagActive");
+					flagCtr++;
+				}
+
+				changeFlagCtr();
+			}
+
+			function changeFlagCtr(){
+				let flagCtrElement = document.getElementById("flag_counter");
+
+				flagCtrElement.innerHTML = flagCtr;
+			}
+
+			function setMines(bombs){
+				let minePositionArray = [];
+
+				for(let i = 0; i < bombs; i++){
+					let randomNumberI = Math.floor(Math.random() * rows);
+					let randomNumberJ = Math.floor(Math.random() * cols);
+					let randomNumber = randomNumberI.toString() + randomNumberJ.toString();
+					randomNumber = parseInt(randomNumber);
+
+					for(let j = 0; j < minePositionArray.length; j++){
+						if(randomNumber == minePositionArray[j]){
+							randomNumber = Math.floor(Math.random() * (rows*cols));
+							j = -1;
+							continue;
+						}	
+					}
+
+					minePositionArray[i] = randomNumber;
+					let bomb = document.getElementById(randomNumber);
+					bomb.setAttribute("bomb", "true");
+					//bomb.style.backgroundColor = "red";
+				}
+				setTiles();
+			}
+
+			function setTiles(){
+				let counter = 0;
+
+				for(let i = 0; i < rows; i++){
+					for(let j = 0; j < cols; j++){
+						let cell = document.getElementById((i*10) + j);
+						if(!cell.hasAttribute("bomb")){
+							if(i-1 >= 0){
+								if(document.getElementById(((i-1)*10) + j).hasAttribute("bomb"))
+								counter++;
+							}
+							if(i+1 < rows){
+								if(document.getElementById(((i+1)*10) + j).hasAttribute("bomb"))
+								counter++;
+							}
+							if(j-1 >= 0){
+								if(document.getElementById((i*10) + (j-1)).hasAttribute("bomb"))
+								counter++;
+							}
+							if(j+1 < cols){
+								if(document.getElementById((i*10) + (j+1)).hasAttribute("bomb"))
+								counter++;
+							}
+							if(i-1 >= 0 && j-1 >= 0){
+								if(document.getElementById(((i-1)*10) + (j-1)).hasAttribute("bomb"))
+								counter++;
+							}
+							if(i-1 >= 0 && j+1 < cols){
+								if(document.getElementById(((i-1)*10) + (j+1)).hasAttribute("bomb"))
+								counter++;
+							}
+							if(i+1 < rows && j-1 >= 0){
+								if(document.getElementById(((i+1)*10) + (j-1)).hasAttribute("bomb"))
+								counter++;
+							}
+							if(i+1 < rows && j+1 < cols){
+								if(document.getElementById(((i+1)*10) + (j+1)).hasAttribute("bomb"))
+								counter++;
+							}
+							
+							cell.setAttribute("numOfBombs", counter);
+							counter = 0;
+						}
+					}
+				}
+			}
+
+			function openCell(event){
+				let id = event.target.id;
+				let cell = document.getElementById(id);
+
+				if(cell.hasAttribute("bomb")){
+					cell.style.backgroundColor = "red"
+					cell.style.backgroundRepeat = "no-repeat";
+					cell.style.backgroundSize = "cover";
+					cell.style.backgroundImage = "url('deathstar.png')";
+
+					gameOver();
+				}
+				else{
+					let num = cell.getAttribute("numOfBombs");
+					if(num == 0){
+						openZeros(id);
+					}
+					else{
+						cell.style.backgroundColor = "lightblue";
+						cell.innerHTML = num;
+					}
+					isWin();
+				}
+			}
+
+			function openZeros(id){
+				let i = Math.floor(id/10);
+				let j = id % 10;
+
+				let cell = undefined;
+				let k = i;
+				let m = j;
+
+				while(k >= 0){
+					if(document.getElementById(k*10 + m).innerHTML != 0){
+						break;
+					}
+
+					while(m >= 0){
+						cell = document.getElementById(k*10 + m);
+
+						if(cell.getAttribute("numOfBombs") == 0){
+							cell.style.backgroundColor = "lightblue"
+
+							surroundingBlocks(k, m);
+						}
+
+						else{
+							cell.style.backgroundColor = "lightblue";
+							cell.innerHTML = cell.getAttribute("numOfBombs");
+							break;
+						}
+						m--;
+					}
+					m = j+1;
+					while(m < cols){
+						cell = document.getElementById(k*10 + m);
+
+						if(cell.getAttribute("numOfBombs") == 0){
+							cell.style.backgroundColor = "lightblue"
+
+							surroundingBlocks(k, m);
+						}
+
+						else{
+							cell.style.backgroundColor = "lightblue";
+							cell.innerHTML = cell.getAttribute("numOfBombs");
+							break;
+						}
+						m++;
+					}
+					m = j;
+					k--;
+				}
+
+				k = i;
+
+				while(k < rows){
+					if(document.getElementById(k*10 + m).innerHTML != 0){
+						break;
+					}
+
+					while(m >= 0){
+						cell = document.getElementById(k*10 + m);
+
+						if(cell.getAttribute("numOfBombs") == 0){
+							cell.style.backgroundColor = "lightblue"
+
+							surroundingBlocks(k, m);
+						}
+
+						else{
+							cell.style.backgroundColor = "lightblue";
+							cell.innerHTML = cell.getAttribute("numOfBombs");
+							break;
+						}
+						m--;
+					}
+					m = j+1;
+					while(m < cols){
+						cell = document.getElementById(k*10 + m);
+
+						if(cell.getAttribute("numOfBombs") == 0){
+							cell.style.backgroundColor = "lightblue"
+
+							surroundingBlocks(k, m);
+						}
+
+						else{
+							cell.style.backgroundColor = "lightblue";
+							cell.innerHTML = cell.getAttribute("numOfBombs");
+							break;
+						}
+						m++;
+					}
+					m = j;
+					k++;
+				}
+
+				k = i;
+
+				while(m >= 0){
+					if(document.getElementById(k*10 + m).innerHTML != 0){
+						break;
+					}
+
+					while(k >= 0){
+						cell = document.getElementById(k*10 + m);
+
+						if(cell.getAttribute("numOfBombs") == 0){
+							cell.style.backgroundColor = "lightblue"
+
+							surroundingBlocks(k, m);
+						}
+
+						else{
+							cell.style.backgroundColor = "lightblue";
+							cell.innerHTML = cell.getAttribute("numOfBombs");
+							break;
+						}
+						k--;
+					}
+					k = i+1;
+					while(k < rows){
+						cell = document.getElementById(k*10 + m);
+
+						if(cell.getAttribute("numOfBombs") == 0){
+							cell.style.backgroundColor = "lightblue"
+
+							surroundingBlocks(k, m);
+						}
+
+						else{
+							cell.style.backgroundColor = "lightblue";
+							cell.innerHTML = cell.getAttribute("numOfBombs");
+							break;
+						}
+						k++;
+					}
+					k = i;
+					m--;
+				}
+
+				m = j;
+
+				while(m < cols){
+					if(document.getElementById(k*10 + m).innerHTML != 0){
+						break;
+					}
+
+					while(k >= 0){
+						cell = document.getElementById(k*10 + m);
+
+						if(cell.getAttribute("numOfBombs") == 0){
+							cell.style.backgroundColor = "lightblue"
+
+							surroundingBlocks(k, m);
+						}
+
+						else{
+							cell.style.backgroundColor = "lightblue";
+							cell.innerHTML = cell.getAttribute("numOfBombs");
+							break;
+						}
+						k--;
+					}
+					k = i+1;
+					while(k < rows){
+						cell = document.getElementById(k*10 + m);
+
+						if(cell.getAttribute("numOfBombs") == 0){
+							cell.style.backgroundColor = "lightblue"
+
+							surroundingBlocks(k, m);
+						}
+
+						else{
+							cell.style.backgroundColor = "lightblue";
+							cell.innerHTML = cell.getAttribute("numOfBombs");
+							break;
+						}
+						k++;
+					}
+					k = i;
+					m++;
+				}
+
+			}
+
+			function surroundingBlocks(i, j){
+				let cell = null;
+				if(i-1 >= 0){
+					cell = document.getElementById((i-1)*10 + j);
+					if(cell.getAttribute("numOfBombs") != 0)
+						cell.innerHTML = cell.getAttribute("numOfBombs");
+					cell.style.backgroundColor = "lightblue";
+				}
+				if(i+1 < rows){
+					cell = document.getElementById((i+1)*10 + j);
+					if(cell.getAttribute("numOfBombs") != 0)
+						cell.innerHTML = cell.getAttribute("numOfBombs");
+					cell.style.backgroundColor = "lightblue";
+				}
+				if(j-1 >= 0){
+					cell = document.getElementById(i*10 + (j-1));
+					if(cell.getAttribute("numOfBombs") != 0)
+						cell.innerHTML = cell.getAttribute("numOfBombs");
+					cell.style.backgroundColor = "lightblue";
+				}
+				if(j+1 < cols){
+					cell = document.getElementById(i*10 + (j+1));
+					if(cell.getAttribute("numOfBombs") != 0)
+						cell.innerHTML = cell.getAttribute("numOfBombs");
+					cell.style.backgroundColor = "lightblue";
+				}
+				if(i-1 >= 0 && j-1 >= 0){
+					cell = document.getElementById((i-1)*10 + (j-1));
+					if(cell.getAttribute("numOfBombs") != 0)
+						cell.innerHTML = cell.getAttribute("numOfBombs");
+					cell.style.backgroundColor = "lightblue";
+				}
+				if(i-1 >= 0 && j+1 < cols){
+					cell = document.getElementById((i-1)*10 + (j+1));
+					if(cell.getAttribute("numOfBombs") != 0)
+						cell.innerHTML = cell.getAttribute("numOfBombs");
+					cell.style.backgroundColor = "lightblue";
+				}
+				if(i+1 < rows && j-1 >= 0){
+					cell = document.getElementById((i+1)*10 + (j-1));
+					if(cell.getAttribute("numOfBombs") != 0)
+						cell.innerHTML = cell.getAttribute("numOfBombs");
+					cell.style.backgroundColor = "lightblue";
+				}
+				if(i+1 < rows && j+1 < cols){
+					cell = document.getElementById((i+1)*10 + (j+1));
+					if(cell.getAttribute("numOfBombs") != 0)
+						cell.innerHTML = cell.getAttribute("numOfBombs");
+					cell.style.backgroundColor = "lightblue";
+				}
+				return;
+			}
+
+			let maxOpenCells = rows*cols-bombs;
+
+			function isWin(){
+				let openedCells = null;
+
+				for(let i = 0; i < rows; i++){
+					for(let j = 0; j < cols; j++){
+						let cell = document.getElementById((i*10)+j);
+						if(cell.style.backgroundColor == "lightblue"){
+							openedCells++;
+						}
+					}	
+				}
+
+				if(openedCells == maxOpenCells){
+					window.openCell = function() {}
+					window.placeFlag = function() {}
+					clearInterval(timerSecId);
+					alert("CONGRATULATIONS, YOU WIN!");
+				}
+
+			}
+
+			function gameOver(){
+				window.openCell = function() {}
+				window.placeFlag = function() {}
+				clearInterval(timerSecId);
+				alert("YOU LOSE!");
+
+				for(let i = 0; i < rows; i++){
+					for(let j = 0; j < cols; j++){
+						let id = i.toString() + j.toString();
+						id = parseInt(id);
+						let cell = document.getElementById(id);
+						if(cell.hasAttribute("bomb")){
+							cell.style.backgroundColor = "red"
+							cell.style.backgroundRepeat = "no-repeat";
+							cell.style.backgroundSize = "cover";
+							cell.style.backgroundImage = "url('deathstar.png')";
+						}
+					}
+				}
+			}
+		</script>
 	</head>
 	<title>Minesweeper</title>
-	<body id="game_body">
+	<body id="game_body" onload="timer()">
 		<audio controls autoplay loop>
 			<source src="duel_of_the_fates.mp3" type="audio/mp3">
 		</audio>
 		<div id="game_info">
 			<img src="bb8.png" id="bb8">
-			<div id="flag_counter">10</div>
-			<div id="timer">10:00</div>
+			<div id="flag_counter"></div>
+			<div id="timer"></div>
 		</div>
-		<div id="button_grid">
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-			<button type="button" class="button_in_grid yellow2"></button>
-			<button type="button" class="button_in_grid yellow1"></button>
-		</div>
+		<table id="button_grid"></table>
 		<div>
 			<a href="Minesweeper_game.html"><button type="button" class="border_element" id="restart_button">RESTART</button></a>
 		</div>
